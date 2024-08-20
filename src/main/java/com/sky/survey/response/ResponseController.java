@@ -35,7 +35,7 @@ public class ResponseController {
             return new ResponseEntity<>("Error creating response: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-///HSFUCHFSDHCHFC
+
     @GetMapping
     public ResponseEntity<?> getResponses(
             @PathVariable Long surveyId,
