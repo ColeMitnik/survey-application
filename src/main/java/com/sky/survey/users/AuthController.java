@@ -55,5 +55,3 @@ public class AuthController {
         }
     }
 }
-
-//I love code.Do you?
