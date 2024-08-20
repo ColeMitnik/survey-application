@@ -1,7 +1,10 @@
 package com.sky.survey.response;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -30,8 +33,29 @@ public class ResponseService {
         return responseRepository.findBySessionId(sessionId);
     }
 
+    public Page<Response> getResponsesBySurveyId(Long surveyId, Pageable pageable) {
+        return responseRepository.findBySurvey_SurveyId(surveyId, pageable);
+    }
+
+    public Page<Response> getResponsesBySurveyIdAndUserEmail(Long surveyId, String email, Pageable pageable) {
+        return responseRepository.findBySurvey_SurveyIdAndUser_Email(surveyId, email, pageable);
+    }
+
+    // Updated method to use dateModified instead of completionDate
+    public Page<Response> getResponsesBySurveyIdAndDateRange(Long surveyId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+        return responseRepository.findBySurvey_SurveyIdAndDateModifiedBetween(surveyId, startDate, endDate, pageable);
+    }
+
+    // New methods to match the added repository methods
+    public Page<Response> getResponsesBySurveyIdAndCompletionStatus(Long surveyId, boolean isComplete, Pageable pageable) {
+        return responseRepository.findBySurvey_SurveyIdAndIsComplete(surveyId, isComplete, pageable);
+    }
+
+    public Page<Response> getResponsesBySurveyIdAndProgressStatus(Long surveyId, Response.InProgressStatus inProgress, Pageable pageable) {
+        return responseRepository.findBySurvey_SurveyIdAndInProgress(surveyId, inProgress, pageable);
+    }
+
     public Response createResponse(Response response) {
-        response.updateProgress();
         return responseRepository.save(response);
     }
 
@@ -39,10 +63,10 @@ public class ResponseService {
         Response response = getResponseById(id);
         response.setUser(responseDetails.getUser());
         response.setSurvey(responseDetails.getSurvey());
-        response.setResponseType(responseDetails.getResponseType());
         response.setSessionId(responseDetails.getSessionId());
-        response.setQuestionsAnswered(responseDetails.getQuestionsAnswered());
-        response.updateProgress();
+        response.setComplete(responseDetails.isComplete());
+        response.setInProgress(responseDetails.getInProgress());
+
         return responseRepository.save(response);
     }
 

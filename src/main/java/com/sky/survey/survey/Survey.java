@@ -2,8 +2,11 @@ package com.sky.survey.survey;
 
 import jakarta.persistence.*;
 import com.sky.survey.users.User;
+import com.sky.survey.question.Question;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "survey", schema = "sky_survey")
@@ -13,16 +16,18 @@ public class Survey {
     @Column(name = "survey_id")
     private Long surveyId;
 
-    @Column(nullable = false)
+    @Column
     private String title;
 
+    @Column
     private String description;
 
-    @ManyToOne
+    @JsonBackReference
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Column(name = "total_questions", nullable = false)
+    @Column(name = "total_questions")
     private int totalQuestions;
 
     @Column(name = "start_date")
@@ -40,108 +45,118 @@ public class Survey {
     @Column(name = "completion_message")
     private String completionMessage;
 
-    @Column(name = "date_created", nullable = false)
+    @Column(name = "date_created")
     private LocalDateTime dateCreated;
 
-    @Column(name = "date_modified", nullable = false)
+    @Column(name = "date_modified")
     private LocalDateTime dateModified;
 
-    // Getters
+    @OneToMany(mappedBy = "survey", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Question> questions;
+
+    // Getters and Setters
     public Long getSurveyId() {
         return surveyId;
+    }
+
+    public void setSurveyId(Long surveyId) {
+        this.surveyId = surveyId;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public int getTotalQuestions() {
-        return totalQuestions;
-    }
-
-    public LocalDate getStartDate() {
-        return startDate;
-    }
-
-    public LocalDate getEndDate() {
-        return endDate;
-    }
-
-    public boolean isActive() {
-        return isActive;
-    }
-
-    public String getWelcomeMessage() {
-        return welcomeMessage;
-    }
-
-    public String getCompletionMessage() {
-        return completionMessage;
-    }
-
-    public LocalDateTime getDateCreated() {
-        return dateCreated;
-    }
-
-    public LocalDateTime getDateModified() {
-        return dateModified;
-    }
-
-    // Setters
-    public void setSurveyId(Long surveyId) {
-        this.surveyId = surveyId;
-    }
-
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
+    public User getUser() {
+        return user;
+    }
+
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public int getTotalQuestions() {
+        return totalQuestions;
     }
 
     public void setTotalQuestions(int totalQuestions) {
         this.totalQuestions = totalQuestions;
     }
 
+    public LocalDate getStartDate() {
+        return startDate;
+    }
+
     public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
     }
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 
+    public boolean isActive() {
+        return isActive;
+    }
+
     public void setActive(boolean active) {
         isActive = active;
+    }
+
+    public String getWelcomeMessage() {
+        return welcomeMessage;
     }
 
     public void setWelcomeMessage(String welcomeMessage) {
         this.welcomeMessage = welcomeMessage;
     }
 
+    public String getCompletionMessage() {
+        return completionMessage;
+    }
+
     public void setCompletionMessage(String completionMessage) {
         this.completionMessage = completionMessage;
+    }
+
+    public LocalDateTime getDateCreated() {
+        return dateCreated;
     }
 
     public void setDateCreated(LocalDateTime dateCreated) {
         this.dateCreated = dateCreated;
     }
 
+    public LocalDateTime getDateModified() {
+        return dateModified;
+    }
+
     public void setDateModified(LocalDateTime dateModified) {
         this.dateModified = dateModified;
+    }
+
+    public List<Question> getQuestions() {
+        return questions;
+    }
+
+    public void setQuestions(List<Question> questions) {
+        this.questions = questions;
     }
 
     @PrePersist

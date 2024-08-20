@@ -1,114 +1,161 @@
 package com.sky.survey.question;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Column;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
+import jakarta.persistence.*;
+import com.sky.survey.survey.Survey;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.sky.survey.option.Option;
 import java.time.LocalDateTime;
-
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
-@Table( name = "questions", schema = "sky_survey")
+@Table(name = "questions", schema = "sky_survey")
 public class Question {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "question_id")
-    private Long question_id;
+    private Long questionId;
 
-    @Column(name = "survey_id")
-    private Long survey_id;
+    @JsonBackReference
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "survey_id")
+    private Survey survey;
 
-    @Column(name = "question_text")
-    private String question_text;
+    @Column(name = "question_text", nullable = false)
+    private String questionText;
 
-    @Column(name = "question_type")
-    private String question_type;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "question_type", nullable = false)
+    private QuestionType questionType;
 
-    @Column(name = "is_required")
-    private boolean is_required;
+    @Column(name = "is_required", nullable = false)
+    private boolean isRequired;
+
+    @Column(name = "additional_properties", columnDefinition = "jsonb")
+    private String additionalProperties;
 
     @Column(name = "date_created")
-    private LocalDateTime date_created;
+    private LocalDateTime dateCreated;
 
     @Column(name = "date_modified")
-    private LocalDateTime date_modified;
+    private LocalDateTime dateModified;
 
-    // Default constructor
-    public Question() {
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Option> options;
+
+    public enum QuestionType {
+        SHORT_TEXT("SHORT TEXT"),
+        LONG_TEXT("LONG TEXT"),
+        CHOICE("CHOICE"),
+        FILE("FILE");
+
+        private final String value;
+
+        QuestionType(String value) {
+            this.value = value;
+        }
+
+        @JsonValue
+        public String getValue() {
+            return value;
+        }
+
+        @JsonCreator
+        public static QuestionType fromValue(String value) {
+            for (QuestionType type : values()) {
+                if (type.value.equalsIgnoreCase(value)) {
+                    return type;
+                }
+            }
+            throw new IllegalArgumentException("Unknown QuestionType: " + value);
+        }
     }
+
+    // Constructors
+    public Question() {}
 
     // Getters and Setters
     public Long getQuestionId() {
-        return question_id;
+        return questionId;
     }
 
-    public void setQuestionId(Long question_id) {
-        this.question_id = question_id;
+    public void setQuestionId(Long questionId) {
+        this.questionId = questionId;
     }
 
-    public Long getSurveyId() {
-        return survey_id;
+    public Survey getSurvey() {
+        return survey;
     }
 
-    public void setSurveyId(Long survey_id) {
-        this.survey_id = survey_id;
+    public void setSurvey(Survey survey) {
+        this.survey = survey;
     }
 
     public String getQuestionText() {
-        return question_text;
+        return questionText;
     }
 
-    public void setQuestionText(String question_text) {
-        this.question_text = question_text;
+    public void setQuestionText(String questionText) {
+        this.questionText = questionText;
     }
 
-    public String getQuestionType() {
-        return question_type;
+    public QuestionType getQuestionType() {
+        return questionType;
     }
 
-    public void setQuestionType(String question_type) {
-        this.question_type = question_type;
+    public void setQuestionType(QuestionType questionType) {
+        this.questionType = questionType;
     }
 
     public boolean isRequired() {
-        return is_required;
+        return isRequired;
     }
 
     public void setRequired(boolean required) {
-        is_required = required;
+        isRequired = required;
+    }
+
+    public String getAdditionalProperties() {
+        return additionalProperties;
+    }
+
+    public void setAdditionalProperties(String additionalProperties) {
+        this.additionalProperties = additionalProperties;
     }
 
     public LocalDateTime getDateCreated() {
-        return date_created;
+        return dateCreated;
     }
 
-    public void setDateCreated(LocalDateTime date_created) {
-        this.date_created = date_created;
+    public void setDateCreated(LocalDateTime dateCreated) {
+        this.dateCreated = dateCreated;
     }
 
     public LocalDateTime getDateModified() {
-        return date_modified;
+        return dateModified;
     }
 
-    public void setDateModified(LocalDateTime date_modified) {
-        this.date_modified = date_modified;
+    public void setDateModified(LocalDateTime dateModified) {
+        this.dateModified = dateModified;
     }
 
-    // toString method for debugging
-    @Override
-    public String toString() {
-        return "Question{" +
-                "id=" + question_id +
-                ", surveyId=" + survey_id +
-                ", questionText='" + question_text + '\'' +
-                ", questionType='" + question_type + '\'' +
-                ", isRequired=" + is_required +
-                ", dateCreated=" + date_created +
-                ", dateModified=" + date_modified +
-                '}';
+    public List<Option> getOptions() {
+        return options;
+    }
+
+    public void setOptions(List<Option> options) {
+        this.options = options;
+    }
+
+
+    @PrePersist
+    protected void onCreate() {
+        dateCreated = dateModified = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        dateModified = LocalDateTime.now();
     }
 }

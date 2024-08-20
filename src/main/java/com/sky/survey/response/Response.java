@@ -10,70 +10,85 @@ import com.sky.survey.survey.Survey;
 public class Response {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "response_id")
     private Long responseId;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
 
     @ManyToOne
     @JoinColumn(name = "survey_id", nullable = false)
     private Survey survey;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ResponseType responseType;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-    @Column(nullable = false)
+    @Column(name = "session_id", nullable = false)
     private String sessionId;
 
-    @Column(nullable = false)
-    private int questionsAnswered;
-
-    @Column(nullable = false)
+    @Column(name = "is_complete", nullable = false)
     private boolean isComplete;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "in_progress", nullable = false)
     private InProgressStatus inProgress;
 
-    @Column(nullable = false)
+    @Column(name = "date_created", nullable = false, updatable = false)
     private LocalDateTime dateCreated;
 
-    @Column(nullable = false)
+    @Column(name = "date_modified", nullable = false)
     private LocalDateTime dateModified;
 
-    // Getters
+    // Enum definition
+    public enum InProgressStatus {
+        COMPLETED, ABANDONED, PENDING
+    }
+
+    // Getters and setters
     public Long getResponseId() {
         return responseId;
     }
 
-    public User getUser() {
-        return user;
+    public void setResponseId(Long responseId) {
+        this.responseId = responseId;
     }
 
     public Survey getSurvey() {
         return survey;
     }
 
-    public ResponseType getResponseType() {
-        return responseType;
+    public void setSurvey(Survey survey) {
+        this.survey = survey;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getSessionId() {
         return sessionId;
     }
 
-    public int getQuestionsAnswered() {
-        return questionsAnswered;
+    public void setSessionId(String sessionId) {
+        this.sessionId = sessionId;
     }
 
     public boolean isComplete() {
         return isComplete;
     }
 
+    public void setComplete(boolean complete) {
+        isComplete = complete;
+    }
+
     public InProgressStatus getInProgress() {
         return inProgress;
+    }
+
+    public void setInProgress(InProgressStatus inProgress) {
+        this.inProgress = inProgress;
     }
 
     public LocalDateTime getDateCreated() {
@@ -84,50 +99,14 @@ public class Response {
         return dateModified;
     }
 
-    // Setters
-    public void setResponseId(Long responseId) {
-        this.responseId = responseId;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public void setSurvey(Survey survey) {
-        this.survey = survey;
-    }
-
-    public void setResponseType(ResponseType responseType) {
-        this.responseType = responseType;
-    }
-
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
-    }
-
-    public void setQuestionsAnswered(int questionsAnswered) {
-        this.questionsAnswered = questionsAnswered;
-    }
-
-    public void setComplete(boolean complete) {
-        isComplete = complete;
-    }
-
-    public void setInProgress(InProgressStatus inProgress) {
-        this.inProgress = inProgress;
-    }
-
-    public void setDateCreated(LocalDateTime dateCreated) {
-        this.dateCreated = dateCreated;
-    }
-
-    public void setDateModified(LocalDateTime dateModified) {
-        this.dateModified = dateModified;
-    }
+    // Constructors, other methods...
 
     @PrePersist
     protected void onCreate() {
         dateCreated = dateModified = LocalDateTime.now();
+        if (inProgress == null) {
+            inProgress = InProgressStatus.PENDING;
+        }
     }
 
     @PreUpdate
@@ -135,45 +114,14 @@ public class Response {
         dateModified = LocalDateTime.now();
     }
 
-    public void updateProgress() {
-        this.isComplete = (this.questionsAnswered == this.survey.getTotalQuestions());
-        this.inProgress = isComplete ? InProgressStatus.COMPLETED : InProgressStatus.PENDING;
-    }
-
-    // Constructors
-    public Response() {
-    }
-
-    public Response(User user, Survey survey, ResponseType responseType, String sessionId,
-                    int questionsAnswered, boolean isComplete, InProgressStatus inProgress) {
-        this.user = user;
-        this.survey = survey;
-        this.responseType = responseType;
-        this.sessionId = sessionId;
-        this.questionsAnswered = questionsAnswered;
-        this.isComplete = isComplete;
-        this.inProgress = inProgress;
-    }
-
-    // Enum definitions
-    public enum ResponseType {
-        TEXT, MULTIPLE_CHOICE, RATING
-    }
-
-    public enum InProgressStatus {
-        COMPLETED, ABANDONED, PENDING
-    }
-
-    // toString method for debugging
+    // toString method
     @Override
     public String toString() {
         return "Response{" +
                 "responseId=" + responseId +
-                ", user=" + user +
                 ", survey=" + survey +
-                ", responseType=" + responseType +
+                ", user=" + user +
                 ", sessionId='" + sessionId + '\'' +
-                ", questionsAnswered=" + questionsAnswered +
                 ", isComplete=" + isComplete +
                 ", inProgress=" + inProgress +
                 ", dateCreated=" + dateCreated +

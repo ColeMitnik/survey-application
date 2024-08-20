@@ -26,6 +26,7 @@ public class SurveyService {
 
     public Survey updateSurvey(Long id, Survey surveyDetails) {
         Survey survey = getSurveyById(id);
+        // Update all fields
         survey.setTitle(surveyDetails.getTitle());
         survey.setDescription(surveyDetails.getDescription());
         survey.setUser(surveyDetails.getUser());
@@ -35,6 +36,7 @@ public class SurveyService {
         survey.setActive(surveyDetails.isActive());
         survey.setWelcomeMessage(surveyDetails.getWelcomeMessage());
         survey.setCompletionMessage(surveyDetails.getCompletionMessage());
+        survey.setQuestions(surveyDetails.getQuestions());
         return surveyRepository.save(survey);
     }
 
